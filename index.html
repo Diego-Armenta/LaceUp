@@ -1,43 +1,525 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="stylesheet" href="/src/styles.css" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Tauri App</title>
-    <script type="module" src="/src/main.ts" defer></script>
-  </head>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ledger — Marathon Training</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    box-sizing: border-box;
+    --ink: #1B1F23;
+    --ink-soft: #4A4F56;
+    --paper: #F6F5F1;
+    --paper-raised: #FFFFFF;
+    --charcoal: #23262B;
+    --charcoal-soft: #2E323A;
+    --accent: #C1432E;
+    --accent-soft: rgba(193,67,46,0.12);
+    --zone-easy: #4C7A5E;
+    --zone-easy-soft: rgba(76,122,94,0.14);
+    --zone-rest: #9A9E9A;
+    --graphite: #8A8F98;
+    --line: rgba(27,31,35,0.12);
+    --line-strong: rgba(27,31,35,0.22);
+    --on-charcoal: #EDEAE3;
+    --on-charcoal-soft: rgba(237,234,227,0.6);
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ink: #EDEAE3;
+      --ink-soft: #B7B3AA;
+      --paper: #14161A;
+      --paper-raised: #1B1E23;
+      --charcoal: #0F1113;
+      --charcoal-soft: #1A1D21;
+      --accent: #E2664F;
+      --accent-soft: rgba(226,102,79,0.16);
+      --zone-easy: #6FA383;
+      --zone-easy-soft: rgba(111,163,131,0.16);
+      --zone-rest: #6B6F72;
+      --graphite: #82868C;
+      --line: rgba(237,234,227,0.12);
+      --line-strong: rgba(237,234,227,0.24);
+      --on-charcoal: #EDEAE3;
+      --on-charcoal-soft: rgba(237,234,227,0.55);
+    }
+  }
+  :root[data-theme="dark"] {
+    --ink: #EDEAE3;
+    --ink-soft: #B7B3AA;
+    --paper: #14161A;
+    --paper-raised: #1B1E23;
+    --charcoal: #0F1113;
+    --charcoal-soft: #1A1D21;
+    --accent: #E2664F;
+    --accent-soft: rgba(226,102,79,0.16);
+    --zone-easy: #6FA383;
+    --zone-easy-soft: rgba(111,163,131,0.16);
+    --zone-rest: #6B6F72;
+    --graphite: #82868C;
+    --line: rgba(237,234,227,0.12);
+    --line-strong: rgba(237,234,227,0.24);
+    --on-charcoal: #EDEAE3;
+    --on-charcoal-soft: rgba(237,234,227,0.55);
+  }
 
-  <body>
-    <main class="container">
-      <h1>Welcome to Tauri</h1>
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'IBM Plex Sans', -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .num { font-family: 'IBM Plex Mono', monospace; font-variant-numeric: tabular-nums; }
+  .head { font-family: 'Barlow Condensed', sans-serif; font-weight: 600; letter-spacing: 0.01em; }
 
-      <div class="row">
-        <a href="https://vite.dev" target="_blank">
-          <img src="/src/assets/vite.svg" class="logo vite" alt="Vite logo" />
-        </a>
-        <a href="https://tauri.app" target="_blank">
-          <img
-            src="/src/assets/tauri.svg"
-            class="logo tauri"
-            alt="Tauri logo"
-          />
-        </a>
-        <a href="https://www.typescriptlang.org/docs" target="_blank">
-          <img
-            src="/src/assets/typescript.svg"
-            class="logo typescript"
-            alt="typescript logo"
-          />
-        </a>
+  .shell { display: flex; min-height: 100vh; }
+
+  /* Sidebar */
+  .sidebar {
+    width: 216px;
+    flex-shrink: 0;
+    background: var(--charcoal);
+    color: var(--on-charcoal);
+    display: flex;
+    flex-direction: column;
+    padding: 22px 16px;
+    padding-top: calc(22px + env(safe-area-inset-top, 0px));
+  }
+  .brand {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 22px;
+    letter-spacing: 0.02em;
+    padding: 4px 8px 22px;
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+  }
+  .brand .dot { color: var(--accent); }
+  nav { display: flex; flex-direction: column; gap: 2px; }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 10px;
+    border-radius: 4px;
+    color: var(--on-charcoal-soft);
+    font-size: 15px;
+    cursor: pointer;
+    border-left: 2px solid transparent;
+    transition: color .15s ease, background .15s ease;
+  }
+  .nav-item:hover { color: var(--on-charcoal); background: rgba(237,234,227,0.05); }
+  .nav-item.active {
+    color: var(--on-charcoal);
+    background: rgba(237,234,227,0.06);
+    border-left: 2px solid var(--accent);
+  }
+  .nav-icon { width: 16px; text-align: center; opacity: 0.9; font-size: 14px; }
+
+  .sidebar-foot {
+    margin-top: auto;
+    padding: 12px 10px 4px;
+    font-size: 12px;
+    color: var(--on-charcoal-soft);
+    border-top: 1px solid rgba(237,234,227,0.1);
+  }
+  .sidebar-foot .goal-line { color: var(--on-charcoal); margin-top: 4px; }
+
+  /* Main */
+  main {
+    flex: 1;
+    min-width: 0;
+    padding: 40px 48px 64px;
+    padding-top: calc(40px + env(safe-area-inset-top, 0px));
+    max-width: 880px;
+  }
+  .view { display: none; }
+  .view.active { display: block; }
+
+  .page-head { margin-bottom: 30px; }
+  .page-head .eyebrow { color: var(--graphite); font-size: 14px; margin-bottom: 2px; }
+  .page-head h1 { font-size: 34px; margin: 0 0 6px; line-height: 1.05; }
+  .page-head p { margin: 0; color: var(--ink-soft); font-size: 15px; max-width: 60ch; }
+
+  /* Today module */
+  .today-card {
+    background: var(--paper-raised);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 22px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 34px;
+  }
+  .today-left .label { font-size: 13px; color: var(--graphite); margin-bottom: 6px; }
+  .today-left .workout-name { font-family:'Barlow Condensed',sans-serif; font-weight:600; font-size: 26px; margin-bottom: 8px; }
+  .today-stats { display: flex; gap: 28px; }
+  .today-stats .stat .n { font-size: 22px; }
+  .today-stats .stat .u { font-size: 12px; color: var(--graphite); display:block; margin-top:2px; }
+  .btn {
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 10px 18px;
+    border-radius: 4px;
+    border: 1px solid var(--line-strong);
+    background: transparent;
+    color: var(--ink);
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .btn:hover { border-color: var(--ink-soft); }
+  .btn-primary { background: var(--accent); border-color: var(--accent); color: #FBF4F1; }
+  .btn-primary:hover { opacity: 0.92; border-color: var(--accent); }
+
+  /* Week strip */
+  .section-label { font-size: 13px; color: var(--graphite); margin: 0 0 12px; }
+  .week-strip { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; margin-bottom: 36px; }
+  .day-col {
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 12px 10px;
+    text-align: left;
+    min-height: 88px;
+  }
+  .day-col.today { border-color: var(--accent); background: var(--accent-soft); }
+  .day-col .dow { font-size: 12px; color: var(--graphite); margin-bottom: 8px; }
+  .day-col.today .dow { color: var(--accent); font-weight: 500; }
+  .day-col .dname { font-size: 13.5px; line-height: 1.3; }
+  .zone-dot { display:inline-block; width:6px; height:6px; border-radius:50%; margin-right:6px; position:relative; top:-1px; }
+  .zone-dot.easy { background: var(--zone-easy); }
+  .zone-dot.hard { background: var(--accent); }
+  .zone-dot.rest { background: var(--zone-rest); }
+
+  /* Ledger */
+  .ledger { border-top: 1px solid var(--line); margin-bottom: 8px; }
+  .ledger-row {
+    display: grid;
+    grid-template-columns: 84px 1fr 74px 84px 48px 1fr;
+    gap: 14px;
+    align-items: center;
+    padding: 13px 4px;
+    border-bottom: 1px solid var(--line);
+    font-size: 14.5px;
+  }
+  .ledger-row.head-row {
+    color: var(--graphite);
+    font-size: 12.5px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--line-strong);
+  }
+  .ledger-row .type-tag { color: var(--ink-soft); }
+  .ledger-row .felt { color: var(--ink-soft); font-size: 13.5px; }
+  .rpe-chip {
+    font-size: 12.5px;
+    padding: 2px 7px;
+    border-radius: 3px;
+    background: var(--zone-easy-soft);
+    color: var(--zone-easy);
+    width: fit-content;
+  }
+  .rpe-chip.hard { background: var(--accent-soft); color: var(--accent); }
+
+  .callout {
+    border-left: 2px solid var(--accent);
+    background: var(--accent-soft);
+    padding: 14px 18px;
+    border-radius: 0 6px 6px 0;
+    font-size: 14.5px;
+    line-height: 1.55;
+    margin-top: 30px;
+    max-width: 62ch;
+  }
+  .callout strong { font-weight: 600; }
+
+  /* Plan view */
+  .phase-block { margin-bottom: 30px; }
+  .phase-title { font-family:'Barlow Condensed',sans-serif; font-weight:600; font-size:20px; margin: 0 0 10px; display:flex; align-items:center; gap:10px;}
+  .phase-title .phase-range { font-family:'IBM Plex Sans',sans-serif; font-weight:400; font-size:13px; color:var(--graphite); }
+  .plan-row {
+    display: grid;
+    grid-template-columns: 90px 1fr 90px;
+    gap: 14px;
+    padding: 11px 4px;
+    border-bottom: 1px solid var(--line);
+    font-size: 14.5px;
+    align-items: center;
+  }
+  .plan-row .wk { color: var(--graphite); }
+  .plan-row .mi { text-align: right; }
+
+  /* Log Run form */
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px 20px; max-width: 620px; margin-bottom: 26px; }
+  .form-grid.full { grid-template-columns: 1fr; }
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field.span2 { grid-column: 1 / -1; }
+  .field label { font-size: 13px; color: var(--ink-soft); }
+  .field input, .field select, .field textarea {
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 14.5px;
+    padding: 9px 11px;
+    border: 1px solid var(--line-strong);
+    border-radius: 4px;
+    background: var(--paper-raised);
+    color: var(--ink);
+  }
+  .field input.num, .field select.num { font-family:'IBM Plex Mono',monospace; }
+  .field textarea { resize: vertical; min-height: 72px; font-family: 'IBM Plex Sans', sans-serif; }
+  .rpe-row { display: flex; align-items: center; gap: 12px; }
+  .rpe-row input[type="range"] { flex: 1; accent-color: var(--accent); }
+  .rpe-val { font-family:'IBM Plex Mono',monospace; font-size: 15px; width: 24px; text-align: center; }
+  .toast {
+    display: none;
+    margin-top: 4px;
+    padding: 10px 14px;
+    background: var(--zone-easy-soft);
+    color: var(--zone-easy);
+    border-radius: 4px;
+    font-size: 13.5px;
+    max-width: 620px;
+  }
+  .toast.show { display: block; }
+
+  /* Profile */
+  .profile-section { margin-bottom: 30px; max-width: 620px; }
+  .profile-section h2 { font-family:'Barlow Condensed',sans-serif; font-weight:600; font-size: 19px; margin: 0 0 14px; }
+
+  @media (max-width: 780px) {
+    .shell { flex-direction: column; }
+    .sidebar { width: 100%; flex-direction: row; align-items: center; padding: 14px 16px; overflow-x: auto; }
+    .brand { padding: 0 14px 0 0; }
+    nav { flex-direction: row; }
+    .sidebar-foot { display: none; }
+    main { padding: 28px 20px 48px; max-width: 100%; }
+    .today-card { flex-direction: column; align-items: flex-start; }
+    .form-grid { grid-template-columns: 1fr; }
+    .ledger-row { grid-template-columns: 66px 1fr 60px; row-gap: 4px; }
+    .ledger-row span:nth-child(4), .ledger-row span:nth-child(5), .ledger-row span:nth-child(6) { display:none; }
+    .ledger-row.head-row { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sidebar">
+    <div class="brand"><span>Ledger</span><span class="dot">.</span></div>
+    <nav>
+      <div class="nav-item active" data-view="dashboard"><span class="nav-icon">◐</span>Dashboard</div>
+      <div class="nav-item" data-view="plan"><span class="nav-icon">▤</span>Training plan</div>
+      <div class="nav-item" data-view="log"><span class="nav-icon">✎</span>Log a run</div>
+      <div class="nav-item" data-view="profile"><span class="nav-icon">◍</span>Profile</div>
+    </nav>
+    <div class="sidebar-foot">
+      Goal race
+      <div class="goal-line">Chicago Marathon<br>Oct 12 · 3:59:59</div>
+    </div>
+  </aside>
+
+  <main>
+    <!-- DASHBOARD -->
+    <section class="view active" id="view-dashboard">
+      <div class="page-head">
+        <div class="eyebrow">Week 9 of 16</div>
+        <h1>Build phase</h1>
+        <p>Volume is climbing toward peak week. Tempo pace was eased slightly based on your last three efforts.</p>
       </div>
-      <p>Click on the Tauri logo to learn more about the framework</p>
 
-      <form class="row" id="greet-form">
-        <input id="greet-input" placeholder="Enter a name..." />
-        <button type="submit">Greet</button>
-      </form>
-      <p id="greet-msg"></p>
-    </main>
-  </body>
+      <div class="today-card">
+        <div class="today-left">
+          <div class="label">Today — Friday</div>
+          <div class="workout-name">Tempo run</div>
+          <div class="today-stats">
+            <div class="stat"><span class="n num">6.0</span><span class="u">miles</span></div>
+            <div class="stat"><span class="n num">8:25</span><span class="u">/mi pace</span></div>
+            <div class="stat"><span class="n num">50:30</span><span class="u">est. time</span></div>
+          </div>
+        </div>
+        <button class="btn btn-primary" onclick="goTo('log')">Log this run</button>
+      </div>
+
+      <p class="section-label">This week</p>
+      <div class="week-strip">
+        <div class="day-col"><div class="dow">Mon</div><div class="dname"><span class="zone-dot easy"></span>Easy 4 mi</div></div>
+        <div class="day-col"><div class="dow">Tue</div><div class="dname"><span class="zone-dot hard"></span>Speed 6×800m</div></div>
+        <div class="day-col"><div class="dow">Wed</div><div class="dname"><span class="zone-dot easy"></span>Easy 5 mi</div></div>
+        <div class="day-col"><div class="dow">Thu</div><div class="dname"><span class="zone-dot rest"></span>Rest</div></div>
+        <div class="day-col today"><div class="dow">Fri</div><div class="dname"><span class="zone-dot hard"></span>Tempo 6 mi</div></div>
+        <div class="day-col"><div class="dow">Sat</div><div class="dname"><span class="zone-dot easy"></span>Easy 4 mi</div></div>
+        <div class="day-col"><div class="dow">Sun</div><div class="dname"><span class="zone-dot hard"></span>Long 14 mi</div></div>
+      </div>
+
+      <p class="section-label">Recent logs</p>
+      <div class="ledger">
+        <div class="ledger-row head-row">
+          <span>Date</span><span>Workout</span><span>Distance</span><span>Pace</span><span>RPE</span><span>Felt</span>
+        </div>
+        <div class="ledger-row">
+          <span class="num">Sep 20</span><span class="type-tag">Long run</span><span class="num">14.2 mi</span><span class="num">8:42/mi</span>
+          <span class="rpe-chip hard">7</span><span class="felt">Legs heavy in the last 3 miles</span>
+        </div>
+        <div class="ledger-row">
+          <span class="num">Sep 18</span><span class="type-tag">Easy run</span><span class="num">5.0 mi</span><span class="num">9:10/mi</span>
+          <span class="rpe-chip">4</span><span class="felt">Comfortable, good recovery</span>
+        </div>
+        <div class="ledger-row">
+          <span class="num">Sep 16</span><span class="type-tag">Tempo run</span><span class="num">6.0 mi</span><span class="num">8:31/mi</span>
+          <span class="rpe-chip hard">8</span><span class="felt">Faded after mile 4</span>
+        </div>
+      </div>
+
+      <div class="callout">
+        <strong>Plan adjusted.</strong> Your last three tempo efforts landed 10–15 sec/mi slower than planned with RPE at 7–8. Today's tempo pace has been eased from 8:15 to 8:25/mi so the effort matches intent.
+      </div>
+    </section>
+
+    <!-- PLAN -->
+    <section class="view" id="view-plan">
+      <div class="page-head">
+        <div class="eyebrow">16-week block</div>
+        <h1>Training plan</h1>
+        <p>Built from your goal time and current fitness, and adjusted weekly as logs come in.</p>
+      </div>
+
+      <div class="phase-block">
+        <div class="phase-title">Base <span class="phase-range">Weeks 1–4</span></div>
+        <div class="plan-row"><span class="wk num">Wk 1</span><span>Easy mileage, form drills, one short tempo</span><span class="mi num">22 mi</span></div>
+        <div class="plan-row"><span class="wk num">Wk 2</span><span>Easy mileage + strides</span><span class="mi num">24 mi</span></div>
+        <div class="plan-row"><span class="wk num">Wk 3</span><span>Introduce hill repeats</span><span class="mi num">26 mi</span></div>
+        <div class="plan-row"><span class="wk num">Wk 4</span><span>Cutback week</span><span class="mi num">20 mi</span></div>
+      </div>
+
+      <div class="phase-block">
+        <div class="phase-title">Build <span class="phase-range">Weeks 5–11</span></div>
+        <div class="plan-row"><span class="wk num">Wk 8</span><span>Speed intervals + progression long run</span><span class="mi num">32 mi</span></div>
+        <div class="plan-row"><span class="wk num">Wk 9</span><span>Tempo, speed work, 14 mi long run</span><span class="mi num">34 mi</span></div>
+        <div class="plan-row"><span class="wk num">Wk 10</span><span>Race-pace intervals, 16 mi long run</span><span class="mi num">36 mi</span></div>
+        <div class="plan-row"><span class="wk num">Wk 11</span><span>Cutback week</span><span class="mi num">26 mi</span></div>
+      </div>
+
+      <div class="phase-block">
+        <div class="phase-title">Peak &amp; taper <span class="phase-range">Weeks 12–16</span></div>
+        <div class="plan-row"><span class="wk num">Wk 12</span><span>Peak long run, 20 mi</span><span class="mi num">40 mi</span></div>
+        <div class="plan-row"><span class="wk num">Wk 14</span><span>Taper begins, volume drops 25%</span><span class="mi num">30 mi</span></div>
+        <div class="plan-row"><span class="wk num">Wk 16</span><span>Race week — short shakeouts only</span><span class="mi num">14 mi</span></div>
+      </div>
+    </section>
+
+    <!-- LOG RUN -->
+    <section class="view" id="view-log">
+      <div class="page-head">
+        <div class="eyebrow">New entry</div>
+        <h1>Log a run</h1>
+        <p>Manual entry — actuals get compared against the plan to adjust next week's workouts.</p>
+      </div>
+
+      <div class="form-grid">
+        <div class="field">
+          <label for="f-date">Date</label>
+          <input type="date" id="f-date" class="num" value="2026-09-22">
+        </div>
+        <div class="field">
+          <label for="f-type">Workout type</label>
+          <select id="f-type">
+            <option>Easy run</option>
+            <option selected>Tempo run</option>
+            <option>Long run</option>
+            <option>Speed / intervals</option>
+            <option>Recovery run</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="f-dist">Distance (mi)</label>
+          <input type="number" id="f-dist" class="num" value="6.0" step="0.1">
+        </div>
+        <div class="field">
+          <label for="f-time">Duration (h:mm:ss)</label>
+          <input type="text" id="f-time" class="num" value="0:50:30">
+        </div>
+        <div class="field span2">
+          <label for="f-rpe">Effort (RPE 1–10)</label>
+          <div class="rpe-row">
+            <input type="range" id="f-rpe" min="1" max="10" value="7" oninput="document.getElementById('rpe-out').textContent=this.value">
+            <span class="rpe-val" id="rpe-out">7</span>
+          </div>
+        </div>
+        <div class="field span2">
+          <label for="f-felt">How did it feel?</label>
+          <textarea id="f-felt" placeholder="e.g. Faded after mile 4, breathing was labored on the last climb...">Faded after mile 4, legs felt flat from the start.</textarea>
+        </div>
+      </div>
+
+      <button class="btn btn-primary" onclick="saveLog()">Save run</button>
+      <div class="toast" id="save-toast">Saved. Tomorrow's easy run pace has been nudged up slightly to aid recovery.</div>
+    </section>
+
+    <!-- PROFILE -->
+    <section class="view" id="view-profile">
+      <div class="page-head">
+        <div class="eyebrow">Your metrics</div>
+        <h1>Profile</h1>
+        <p>Used to build and continually recalibrate your plan.</p>
+      </div>
+
+      <div class="profile-section">
+        <h2>About you</h2>
+        <div class="form-grid">
+          <div class="field"><label>Name</label><input type="text" value="Jordan"></div>
+          <div class="field"><label>Age</label><input type="number" class="num" value="34"></div>
+          <div class="field"><label>Current weekly mileage</label><input type="number" class="num" value="28"></div>
+          <div class="field"><label>Years running</label><input type="number" class="num" value="5"></div>
+        </div>
+      </div>
+
+      <div class="profile-section">
+        <h2>Recent race times</h2>
+        <div class="form-grid">
+          <div class="field"><label>5K</label><input type="text" class="num" value="24:10"></div>
+          <div class="field"><label>10K</label><input type="text" class="num" value="50:40"></div>
+          <div class="field"><label>Half marathon</label><input type="text" class="num" value="1:52:30"></div>
+          <div class="field"><label>Marathon (if any)</label><input type="text" class="num" value="—"></div>
+        </div>
+      </div>
+
+      <div class="profile-section">
+        <h2>Goal race</h2>
+        <div class="form-grid">
+          <div class="field"><label>Race name</label><input type="text" value="Chicago Marathon"></div>
+          <div class="field"><label>Race date</label><input type="date" class="num" value="2026-10-12"></div>
+          <div class="field span2"><label>Goal finish time</label><input type="text" class="num" value="3:59:59"></div>
+        </div>
+      </div>
+
+      <button class="btn btn-primary">Save profile</button>
+    </section>
+  </main>
+</div>
+
+<script>
+  function goTo(name){
+    document.querySelectorAll('.nav-item').forEach(el => el.classList.toggle('active', el.dataset.view === name));
+    document.querySelectorAll('.view').forEach(el => el.classList.toggle('active', el.id === 'view-' + name));
+    window.scrollTo(0,0);
+  }
+  document.querySelectorAll('.nav-item').forEach(item => {
+    item.addEventListener('click', () => goTo(item.dataset.view));
+  });
+  function saveLog(){
+    const t = document.getElementById('save-toast');
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 4500);
+  }
+</script>
+</body>
 </html>
