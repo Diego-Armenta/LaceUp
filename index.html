@@ -278,7 +278,35 @@
   .field input.num, .field select.num { font-family:'IBM Plex Mono',monospace; }
   .field textarea { resize: vertical; min-height: 72px; font-family: 'IBM Plex Sans', sans-serif; }
   .rpe-row { display: flex; align-items: center; gap: 12px; }
-  .rpe-row input[type="range"] { flex: 1; accent-color: var(--accent); }
+  .rpe-row input[type="range"] {
+  --fill: 60%;
+  flex: 1;
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 14px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  outline: none;
+}
+.rpe-row input[type="range"]::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 2px;
+  background: linear-gradient(to right, var(--accent) var(--fill), var(--line) var(--fill));
+}
+.rpe-row input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  margin-top: -5px;
+  border-radius: 50%;
+  background: var(--accent);
+  cursor: pointer;
+  border: none;
+}
   .rpe-val { font-family:'IBM Plex Mono',monospace; font-size: 15px; width: 24px; text-align: center; }
   .toast {
     display: none;
@@ -444,13 +472,13 @@
           <input type="number" id="f-dist" class="num" value="6.0" step="0.1">
         </div>
         <div class="field">
-          <label for="f-time">Duration (h:mm:ss)</label>
+          <label for="f-time">Duration </label>
           <input type="text" id="f-time" class="num" value="0:50:30">
         </div>
         <div class="field span2">
           <label for="f-rpe">Effort (RPE 1–10)</label>
           <div class="rpe-row">
-            <input type="range" id="f-rpe" min="1" max="10" value="7" oninput="document.getElementById('rpe-out').textContent=this.value">
+            <input type="range" id="f-rpe" min="1" max="10" value="7" oninput="updateRpe(this)">
             <span class="rpe-val" id="rpe-out">7</span>
           </div>
         </div>
@@ -515,10 +543,17 @@
   document.querySelectorAll('.nav-item').forEach(item => {
     item.addEventListener('click', () => goTo(item.dataset.view));
   });
+  updateRpe(document.getElementById('f-rpe'));
   function saveLog(){
     const t = document.getElementById('save-toast');
     t.classList.add('show');
     setTimeout(() => t.classList.remove('show'), 4500);
+  }
+  function updateRpe(el) {
+  document.getElementById('rpe-out').textContent = el.value;
+  const min = +el.min, max = +el.max, val = +el.value;
+  const pct = ((val - min) / (max - min)) * 100;
+  el.style.setProperty('--fill', pct + '%');
   }
 </script>
 </body>
