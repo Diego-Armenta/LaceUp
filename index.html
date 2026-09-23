@@ -309,16 +309,22 @@
 }
   .rpe-val { font-family:'IBM Plex Mono',monospace; font-size: 15px; width: 24px; text-align: center; }
   .toast {
-    display: none;
-    margin-top: 4px;
-    padding: 10px 14px;
-    background: var(--zone-easy-soft);
-    color: var(--zone-easy);
-    border-radius: 4px;
-    font-size: 13.5px;
-    max-width: 620px;
-  }
-  .toast.show { display: block; }
+  opacity: 0;
+  transform: translateY(-4px);
+  pointer-events: none;
+  margin-top: 10px;
+  padding: 10px 14px;
+  background: var(--zone-easy-soft);
+  color: var(--zone-easy);
+  border-radius: 4px;
+  font-size: 13.5px;
+  max-width: 620px;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+.toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
 
   /* Profile */
   .profile-section { margin-bottom: 30px; max-width: 620px; }
@@ -503,58 +509,38 @@
       <div class="profile-section">
         <h2>About you</h2>
         <div class="form-grid">
-          <div class="field"><label>Name</label><input type="text" value="Jordan"></div>
-          <div class="field"><label>Age</label><input type="number" class="num" value="34"></div>
-          <div class="field"><label>Current weekly mileage</label><input type="number" class="num" value="28"></div>
-          <div class="field"><label>Years running</label><input type="number" class="num" value="5"></div>
+          <div class="field"><label>Name</label><input type="text" id="name" value="Jordan"></div>
+          <div class="field"><label>Age</label><input type="number" id="age" class="num" value="34"></div>
+          <div class="field"><label>Current weekly mileage</label><input type="number" id="weekly-mileage" class="num" value="28"></div>
+          <div class="field"><label>Years running</label><input type="number" id="years-running" class="num" value="5"></div>
         </div>
       </div>
 
       <div class="profile-section">
         <h2>Recent race times</h2>
         <div class="form-grid">
-          <div class="field"><label>5K</label><input type="text" class="num" value="24:10"></div>
-          <div class="field"><label>10K</label><input type="text" class="num" value="50:40"></div>
-          <div class="field"><label>Half marathon</label><input type="text" class="num" value="1:52:30"></div>
-          <div class="field"><label>Marathon (if any)</label><input type="text" class="num" value="—"></div>
+          <div class="field"><label>5K</label><input type="text" id="race-5k" class="num" value="24:10"></div>
+          <div class="field"><label>10K</label><input type="text" id="race-10k" class="num" value="50:40"></div>
+          <div class="field"><label>Half marathon</label><input type="text" id="race-half" class="num" value="1:52:30"></div>
+          <div class="field"><label>Marathon (if any)</label><input type="text" id="race-marathon" class="num" value="—"></div>
         </div>
       </div>
 
       <div class="profile-section">
         <h2>Goal race</h2>
         <div class="form-grid">
-          <div class="field"><label>Race name</label><input type="text" value="Chicago Marathon"></div>
-          <div class="field"><label>Race date</label><input type="date" class="num" value="2026-10-12"></div>
-          <div class="field span2"><label>Goal finish time</label><input type="text" class="num" value="3:59:59"></div>
+          <div class="field"><label>Race name</label><input type="text" id="goal-race-name" value="Chicago Marathon"></div>
+          <div class="field"><label>Race date</label><input type="date" id="goal-race-date" class="num" value="2026-10-12"></div>
+          <div class="field span2"><label>Goal finish time</label><input type="text" id="goal-time" class="num" value="3:59:59"></div>
         </div>
       </div>
 
-      <button class="btn btn-primary">Save profile</button>
-    </section>
-  </main>
-</div>
+      <button class="btn btn-primary" onclick="saveProfileForm()">Save profile</button>
+      <div class="toast" id="profile-toast">Profile saved.</div>
+          </section>
+        </main>
+      </div>
 
-<script>
-  function goTo(name){
-    document.querySelectorAll('.nav-item').forEach(el => el.classList.toggle('active', el.dataset.view === name));
-    document.querySelectorAll('.view').forEach(el => el.classList.toggle('active', el.id === 'view-' + name));
-    window.scrollTo(0,0);
-  }
-  document.querySelectorAll('.nav-item').forEach(item => {
-    item.addEventListener('click', () => goTo(item.dataset.view));
-  });
-  updateRpe(document.getElementById('f-rpe'));
-  function saveLog(){
-    const t = document.getElementById('save-toast');
-    t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), 4500);
-  }
-  function updateRpe(el) {
-  document.getElementById('rpe-out').textContent = el.value;
-  const min = +el.min, max = +el.max, val = +el.value;
-  const pct = ((val - min) / (max - min)) * 100;
-  el.style.setProperty('--fill', pct + '%');
-  }
-</script>
+<script type="module" src="/src/app.ts"></script>
 </body>
 </html>
