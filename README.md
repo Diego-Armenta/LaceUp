@@ -84,6 +84,4 @@ LaceUp/
 
 This keeps the app fully functional and offline for logging and plan viewing — the only time it needs a connection is when you explicitly ask for a suggestion.
 
-## License
 
-Personal project — license TBD.
